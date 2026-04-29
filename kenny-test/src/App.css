@@ -497,6 +497,30 @@ body {
   font-weight: 600;
 }
 
+.share-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+}
+
+.share-btn:active {
+  transform: scale(0.97);
+}
+
+.share-btn.copied {
+  border-color: var(--green);
+  color: var(--green);
+}
+
 .retake-btn {
   width: 100%;
   padding: 16px;
@@ -515,6 +539,14 @@ body {
 .retake-btn:active {
   transform: scale(0.97);
   background: var(--surface);
+}
+
+.privacy-notice {
+  font-size: 0.75rem;
+  color: var(--muted);
+  opacity: 0.7;
+  margin-top: 12px;
+  line-height: 1.5;
 }
 
 /* ===== RETURNING USER ===== */
