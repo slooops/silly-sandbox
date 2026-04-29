@@ -308,6 +308,15 @@ body {
   to   { transform: translateX(0); opacity: 1; }
 }
 
+.question-gif {
+  width: 100%;
+  max-height: min(180px, 30vh);
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  display: block;
+}
+
 .question-text {
   font-size: 1.4rem;
   font-weight: 600;

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import questions from './questions'
+import gifs from './gifs'
 import { saveScore, getScores } from './supabase'
 
 const CUTOFF = 32
@@ -146,6 +147,15 @@ function Quiz({ name, emoji, onFinish }) {
 
   const progress = ((current + 1) / TOTAL) * 100
 
+  // Prefetch next question's GIF so it's ready before the slide
+  useEffect(() => {
+    const nextGif = gifs[current + 1]
+    if (nextGif) {
+      const img = new Image()
+      img.src = nextGif
+    }
+  }, [current])
+
   return (
     <div className="screen quiz-screen">
       <div className="progress-bar-container">
@@ -164,6 +174,9 @@ function Quiz({ name, emoji, onFinish }) {
       </div>
       <div className="question-area">
         <div className={`question-card ${direction || ''}`}>
+          {gifs[current] && (
+            <img className="question-gif" src={gifs[current]} alt="" />
+          )}
           <p className="question-text">{questions[current]}</p>
         </div>
       </div>
