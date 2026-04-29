@@ -215,12 +215,12 @@ function ShareButton({ score, passed }) {
   const [copied, setCopied] = useState(false)
 
   const handleShare = useCallback(() => {
-    const url = window.location.href
+    const url = 'https://silly-sandbox.vercel.app'
     const verdict = passed ? 'SUPER ELIGIBLE 💍🎉' : 'UNMARRIAGEABLE 🚩🚩🚩'
     const tail = passed
-      ? `Only ${score}/${TOTAL} red flags!`
-      : `${score}/${TOTAL} red flags. Kenny has left the building.`
-    const text = `🚩 The Kenny Test\nI scored: ${verdict}\n${tail}\n${url}`
+      ? `only ${score}/${TOTAL} red flags 😇`
+      : `${score}/${TOTAL} red flags 🚩 kenny has left the building`
+    const text = `${url}\n\n🚩 The Kenny Test — I got: ${verdict}\n${tail}`
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
