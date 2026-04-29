@@ -97,6 +97,7 @@ function StartScreen({ onStart, onViewScoreboard }) {
 function Quiz({ name, emoji, onFinish }) {
   const [current, setCurrent] = useState(0)
   const [score, setScore] = useState(0)
+  const [history, setHistory] = useState([])
   const [direction, setDirection] = useState(null)
   const [animating, setAnimating] = useState(false)
 
@@ -106,6 +107,7 @@ function Quiz({ name, emoji, onFinish }) {
 
     const newScore = answer ? score + 1 : score
     if (answer) setScore(newScore)
+    setHistory(h => [...h, answer])
 
     setDirection(answer ? 'exit-left' : 'exit-right')
 
@@ -123,6 +125,25 @@ function Quiz({ name, emoji, onFinish }) {
     }, 300)
   }, [current, score, animating, onFinish])
 
+  const goBack = useCallback(() => {
+    if (animating || current === 0) return
+    setAnimating(true)
+
+    setDirection('exit-right')
+
+    setTimeout(() => {
+      const prevAnswer = history[history.length - 1]
+      setHistory(h => h.slice(0, -1))
+      setCurrent(c => c - 1)
+      if (prevAnswer) setScore(s => s - 1)
+      setDirection('enter-left')
+      setTimeout(() => {
+        setDirection(null)
+        setAnimating(false)
+      }, 300)
+    }, 300)
+  }, [animating, current, history])
+
   const progress = ((current + 1) / TOTAL) * 100
 
   return (
@@ -131,6 +152,13 @@ function Quiz({ name, emoji, onFinish }) {
         <div className="progress-bar" style={{ width: `${progress}%` }} />
       </div>
       <div className="quiz-header">
+        <button
+          className="back-btn"
+          onClick={goBack}
+          disabled={current === 0 || animating}
+        >
+          ← Back
+        </button>
         <span className="question-count">{current + 1} / {TOTAL}</span>
         <span className="running-score">🚩 {score}</span>
       </div>
