@@ -274,8 +274,24 @@ body {
   to   { transform: translateX(0); opacity: 1; }
 }
 
+.question-gif-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.question-gif {
+  width: 100%;
+  max-width: 280px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
 .question-text {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 600;
   text-align: center;
   line-height: 1.4;

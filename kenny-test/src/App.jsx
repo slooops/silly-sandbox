@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import questions from './questions'
+import gifs from './gifs'
 import { saveScore, getScores } from './supabase'
 
 const CUTOFF = 32
@@ -96,6 +97,16 @@ function Quiz({ name, emoji, onFinish }) {
   const [score, setScore] = useState(0)
   const [direction, setDirection] = useState(null)
   const [animating, setAnimating] = useState(false)
+  const preloadRef = useRef(null)
+
+  // Preload next GIF in the background
+  useEffect(() => {
+    const nextUrl = gifs[current + 1]
+    if (nextUrl) {
+      preloadRef.current = new Image()
+      preloadRef.current.src = nextUrl
+    }
+  }, [current])
 
   const advance = useCallback((answer) => {
     if (animating) return
@@ -121,6 +132,7 @@ function Quiz({ name, emoji, onFinish }) {
   }, [current, score, animating, onFinish])
 
   const progress = ((current + 1) / TOTAL) * 100
+  const currentGif = gifs[current]
 
   return (
     <div className="screen quiz-screen">
@@ -133,6 +145,16 @@ function Quiz({ name, emoji, onFinish }) {
       </div>
       <div className="question-area">
         <div className={`question-card ${direction || ''}`}>
+          {currentGif && (
+            <div className="question-gif-wrap">
+              <img
+                className="question-gif"
+                src={currentGif}
+                alt=""
+                loading="eager"
+              />
+            </div>
+          )}
           <p className="question-text">{questions[current]}</p>
         </div>
       </div>
