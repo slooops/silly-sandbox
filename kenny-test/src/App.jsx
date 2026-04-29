@@ -74,6 +74,9 @@ function StartScreen({ onStart, onViewScoreboard }) {
             Take the Test
           </button>
         </form>
+        <p className="privacy-notice">
+          🔒 Your individual responses aren't recorded — only your name and total score are saved to the leaderboard.
+        </p>
 
         {existingUser && (
           <div className="returning-section">
@@ -95,6 +98,7 @@ function StartScreen({ onStart, onViewScoreboard }) {
 function Quiz({ name, emoji, onFinish }) {
   const [current, setCurrent] = useState(0)
   const [score, setScore] = useState(0)
+  const [history, setHistory] = useState([])
   const [direction, setDirection] = useState(null)
   const [animating, setAnimating] = useState(false)
   const preloadRef = useRef(null)
@@ -114,6 +118,7 @@ function Quiz({ name, emoji, onFinish }) {
 
     const newScore = answer ? score + 1 : score
     if (answer) setScore(newScore)
+    setHistory(h => [...h, answer])
 
     setDirection(answer ? 'exit-left' : 'exit-right')
 
@@ -131,6 +136,25 @@ function Quiz({ name, emoji, onFinish }) {
     }, 300)
   }, [current, score, animating, onFinish])
 
+  const goBack = useCallback(() => {
+    if (animating || current === 0) return
+    setAnimating(true)
+
+    setDirection('exit-right')
+
+    setTimeout(() => {
+      const prevAnswer = history[history.length - 1]
+      setHistory(h => h.slice(0, -1))
+      setCurrent(c => c - 1)
+      if (prevAnswer) setScore(s => s - 1)
+      setDirection('enter-left')
+      setTimeout(() => {
+        setDirection(null)
+        setAnimating(false)
+      }, 300)
+    }, 300)
+  }, [animating, current, history])
+
   const progress = ((current + 1) / TOTAL) * 100
   const currentGif = gifs[current]
 
@@ -140,6 +164,13 @@ function Quiz({ name, emoji, onFinish }) {
         <div className="progress-bar" style={{ width: `${progress}%` }} />
       </div>
       <div className="quiz-header">
+        <button
+          className="back-btn"
+          onClick={goBack}
+          disabled={current === 0 || animating}
+        >
+          ← Back
+        </button>
         <span className="question-count">{current + 1} / {TOTAL}</span>
         <span className="running-score">🚩 {score}</span>
       </div>
@@ -180,9 +211,33 @@ function Quiz({ name, emoji, onFinish }) {
   )
 }
 
+function ShareButton({ score, passed }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleShare = useCallback(() => {
+    const url = window.location.href
+    const verdict = passed ? 'SUPER ELIGIBLE 💍🎉' : 'UNMARRIAGEABLE 🚩🚩🚩'
+    const tail = passed
+      ? `Only ${score}/${TOTAL} red flags!`
+      : `${score}/${TOTAL} red flags. Kenny has left the building.`
+    const text = `🚩 The Kenny Test\nI scored: ${verdict}\n${tail}\n${url}`
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }, [score, passed])
+
+  return (
+    <button className={`share-btn ${copied ? 'copied' : ''}`} onClick={handleShare}>
+      {copied ? '✅ Copied!' : '📤 Share Your Score'}
+    </button>
+  )
+}
+
 function ScoreboardView({ name, emoji, score, onRetake }) {
   const [scores, setScores] = useState([])
   const [loading, setLoading] = useState(true)
+  const passed = score < CUTOFF
 
   useEffect(() => {
     getScores().then(all => {
@@ -194,29 +249,60 @@ function ScoreboardView({ name, emoji, score, onRetake }) {
   const maxScore = Math.max(TOTAL, ...scores.map(s => s.score))
 
   return (
-    <div className="screen scoreboard-view">
-      <div className="scoreboard-header">
-        <h1>🚩 The Kenny Test</h1>
-        <p>Scoreboard</p>
-      </div>
-      <div className="user-badge">
-        <span>{emoji}</span>
-        <span>{name}</span>
-        <span>·</span>
-        <span>Score: {score}</span>
-      </div>
-      <div className="scoreboard-section">
-        <div className="cutoff-label">
-          Cutoff: {CUTOFF} red flags = unmarriageable
+    <div className={`screen results-screen ${passed ? 'passed' : 'failed'}`}>
+      {passed && <Confetti />}
+      {!passed && <DoomOverlay />}
+      <div className="results-content">
+        <div className="verdict-section">
+          {passed ? (
+            <>
+              <div className="verdict-emoji">💍🎉🥂</div>
+              <h1 className="verdict passed-verdict">SUPER ELIGIBLE</h1>
+              <p className="verdict-sub">
+                Kenny would be HONORED. You scored only <strong>{score}</strong> out of {TOTAL} red flags.
+              </p>
+              <div className="meme-container">
+                <img
+                  className="meme-gif"
+                  src="https://media1.tenor.com/m/bqFfT9K5OQ4AAAAd/wendy-williams-clap.gif"
+                  alt="Wendy Williams clapping in celebration"
+                />
+                <p className="meme-caption">Kenny-approved marriage material</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="verdict-emoji">🚩🚩🚩</div>
+              <h1 className="verdict failed-verdict">UNMARRIAGEABLE</h1>
+              <p className="verdict-sub">
+                You scored <strong>{score}</strong> out of {TOTAL} red flags.
+                <br />Kenny has left the building.
+              </p>
+              <div className="meme-container">
+                <img
+                  className="meme-gif"
+                  src="https://media1.tenor.com/m/S619LgsNUXEAAAAd/running-away-scared.gif"
+                  alt="Man running away scared"
+                />
+                <p className="meme-caption">The math is not mathing and neither is this marriage</p>
+              </div>
+            </>
+          )}
         </div>
-        {loading ? (
-          <p className="loading">Loading scores...</p>
-        ) : (
-          <Scoreboard scores={scores} currentName={name} maxScore={maxScore} />
-        )}
-      </div>
-      <div className="retake-link" onClick={onRetake}>
-        Retake the quiz
+
+        <ShareButton score={score} passed={passed} />
+
+        <div className="scoreboard-section">
+          <h2>Scoreboard</h2>
+          <div className="cutoff-label">Cutoff: {CUTOFF} red flags</div>
+          {loading ? (
+            <p className="loading">Loading scores...</p>
+          ) : (
+            <Scoreboard scores={scores} currentName={name} maxScore={maxScore} />
+          )}
+        </div>
+
+        <button className="retake-btn" onClick={onRetake}>Retake the Test</button>
       </div>
     </div>
   )
@@ -312,6 +398,8 @@ function Results({ name, emoji, score, onRetake }) {
             </>
           )}
         </div>
+
+        <ShareButton score={score} passed={passed} />
 
         <div className="scoreboard-section">
           <h2>Scoreboard</h2>

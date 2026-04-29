@@ -233,6 +233,31 @@ body {
   color: var(--accent);
 }
 
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.back-btn:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.back-btn:not(:disabled):active {
+  color: var(--text);
+  background: var(--surface);
+}
+
 .question-area {
   flex: 1;
   display: flex;
@@ -259,6 +284,10 @@ body {
   animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
+.question-card.enter-left {
+  animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 @keyframes slideOutLeft {
   from { transform: translateX(0); opacity: 1; }
   to   { transform: translateX(-100px); opacity: 0; }
@@ -271,6 +300,11 @@ body {
 
 @keyframes slideIn {
   from { transform: translateX(50px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-50px); opacity: 0; }
   to   { transform: translateX(0); opacity: 1; }
 }
 
@@ -513,6 +547,30 @@ body {
   font-weight: 600;
 }
 
+.share-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 24px;
+}
+
+.share-btn:active {
+  transform: scale(0.97);
+}
+
+.share-btn.copied {
+  border-color: var(--green);
+  color: var(--green);
+}
+
 .retake-btn {
   width: 100%;
   padding: 16px;
@@ -531,6 +589,14 @@ body {
 .retake-btn:active {
   transform: scale(0.97);
   background: var(--surface);
+}
+
+.privacy-notice {
+  font-size: 0.75rem;
+  color: var(--muted);
+  opacity: 0.7;
+  margin-top: 12px;
+  line-height: 1.5;
 }
 
 /* ===== RETURNING USER ===== */
