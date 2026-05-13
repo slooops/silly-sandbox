@@ -1,5 +1,11 @@
 {
   "buildCommand": "cd kenny-test && npm install && npm run build",
   "outputDirectory": "kenny-test/dist",
-  "framework": "vite"
+  "framework": "vite",
+  "crons": [
+    {
+      "path": "/api/ping",
+      "schedule": "0 12 * * *"
+    }
+  ]
 }
