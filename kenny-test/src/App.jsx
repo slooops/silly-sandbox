@@ -172,7 +172,7 @@ function Quiz({ name, emoji, onFinish }) {
           ← Back
         </button>
         <span className="question-count">{current + 1} / {TOTAL}</span>
-        <span className="running-score">🚩 {score}</span>
+        {/* <span className="running-score">🚩 {score}</span> */}
       </div>
       <div className="question-area">
         <div className={`question-card ${direction || ''}`}>
