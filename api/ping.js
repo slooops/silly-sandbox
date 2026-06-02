@@ -1,23 +1,9 @@
-// Cron keep-alive for Supabase free tier.
-// Vercel runs this daily so the project never hits the 7-day inactivity pause.
+const { neon } = require('@neondatabase/serverless')
+
+// Cron keep-alive to warm Neon compute so the first real query of the day
+// doesn't hit a cold start. Runs daily via vercel.json crons config.
 module.exports = async function handler(req, res) {
-  const url = process.env.VITE_SUPABASE_URL
-  const key = process.env.VITE_SUPABASE_ANON_KEY
-
-  if (!url || !key) {
-    return res.status(500).json({ error: 'missing supabase env vars' })
-  }
-
-  const response = await fetch(`${url}/rest/v1/scores?select=id&limit=1`, {
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-    },
-  })
-
-  if (!response.ok) {
-    return res.status(500).json({ error: 'supabase ping failed', status: response.status })
-  }
-
+  const sql = neon(process.env.DATABASE_URL)
+  await sql`SELECT 1`
   res.status(200).json({ ok: true, time: new Date().toISOString() })
 }
